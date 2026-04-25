@@ -33,3 +33,23 @@ TT = max(TV, TN); % Ensure TT is the same size as TV and TN
 lT = reshape(lV, x, y) - TV + TT;
 % Replace the luminance channel in lαβ
 lab_V(1, :) = lT(:)';
+% Convert lαβ back to LMS
+LMS_res = M_lab2lms2 * M_lab2lms1 * lab_V;
+for ch = 1:3
+LMS_res(ch, :) = 10.^LMS_res(ch, :);
+end
+% Convert back to RGB
+M_lms2rgb = [4.4679 -3.5873 0.1193; -1.2186 2.3809 -0.1624; 0.0497 -0.2439 1.2045];
+F = M_lms2rgb * LMS_res;
+F = reshape(F', x, y, 3);
+% Display the results
+figure;
+subplot(1, 3, 1);
+imshow(im2uint8(reshape(V_reshaped, x, y, 3)));
+title('Visible Image');
+subplot(1, 3, 2);
+imshow(N);
+title('NIR Image');
+subplot(1, 3, 3);
+imshow(im2uint8(F));
+title('Fused Image');
